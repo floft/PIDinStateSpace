@@ -1,0 +1,221 @@
+% Change these
+\newcommand{\doctitle}{PID in State Space Form}
+\date{\formatdate{13}{5}{2016}}
+
+% Use to find math symbols:
+%  http://detexify.kirelabs.org/classify.html
+
+% "article" puts content on the first page, "report" does not
+% letterpaper is 8.5"x11"
+\documentclass[10pt,letterpaper]{article}
+% Defaults
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+% Allow \href{http://url}{name}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\hypersetup{
+    colorlinks=true,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+% Allow colored table rows
+\usepackage{colortbl}
+% Allow underline with \uline{text}
+\usepackage[normalem]{ulem}
+% Allow monospace with \begin{lstlisting}
+\usepackage{listings}
+\usepackage{textcomp}
+\lstset{basicstyle=\ttfamily,
+%escapeinside={||}, % Allow Latex inside escaped
+mathescape=false, % Allow $$ to be displayed
+columns=fullflexible, % Don't add extra spaces
+upquote=true, % Use normal quotes
+showspaces=false,
+showstringspaces=false,
+prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}} % nod idea
+}
+% Syntax highlighted code. Notes:
+%  - requires installing "minted" from AUR
+%  - requires adding "-shell-escape" to the pdflatex command
+\usepackage{minted}
+% Allow single, double, etc. spacing
+\usepackage{setspace}
+% Allow setting a date with \formatdate{day}{month}{year}
+\usepackage[USenglish]{babel}
+\selectlanguage{USenglish}
+\usepackage{datetime}
+% Make " do the correct left/right quotes
+\usepackage [autostyle, english=american]{csquotes}
+\MakeOuterQuote{"}
+% Margins since the default are huge
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+% Shrink the section font size
+%\usepackage{sectsty}
+%\sectionfont{\fontsize{10}{10}\selectfont}
+% Allow embedding images from this path
+\usepackage{graphicx}
+\graphicspath{ {./} }
+% Allow subfigures
+\usepackage{subfig}
+% Allow Roman numeral lists
+\usepackage{enumerate}
+% Even and odd numbering
+\usepackage{enumitem}
+\newlist{oddenumerate}{enumerate}{1}
+\setlist[oddenumerate]{start=0,label=\theoddenumeratei.}
+\newlist{evenenumerate}{enumerate}{1}
+\setlist[evenenumerate]{start=0,label=\theevenenumeratei.}
+\makeatletter
+\renewcommand\theoddenumeratei{\@arabic{\numexpr2*\value{oddenumeratei}+1}}
+\renewcommand\theevenenumeratei{\@arabic{\numexpr2*\value{evenenumeratei}+2}}
+\makeatother
+% Don't indent paragraphs
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+% Page header
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+% Allow using the "independent" math symbol
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+% Displayed on first page, escape # character
+\title{\doctitle}
+\author{Garrett Wilson}
+% Redefine author and title so they can be used after \maketitle
+\makeatletter
+\let\mauthor\@author
+\let\mtitle\@title
+\makeatother
+% Header left, center, and right at the top of all but the first page
+\lhead{\mauthor}
+\rhead{\doctitle}
+%\chead{\homework}
+
+\begin{document}
+\maketitle
+A PID controller normally looks like the following:
+\begin{equation}
+u(t) = k_p e(t) + k_i \int_{0}^{t} e(\tau) d\tau + k_d \dot{e}(t)
+\end{equation}
+We want to try rewriting this in state space form.
+\begin{equation}
+\dot{x} = ax+bu
+\end{equation}
+\begin{equation}
+y = cx
+\end{equation}
+\begin{equation}
+e \equiv y - s = cx - s
+\end{equation}
+\begin{equation}
+K_g \equiv ( 1 + k_d c b )^{-1}
+\end{equation}
+\begin{equation} \label{eq:y_p}
+y_p \equiv e = \dot{z} = cx - s
+\end{equation}
+\begin{equation} \label{eq:y_i}
+y_i \equiv z
+\end{equation}
+\begin{equation} \label{eq:y_d}
+y_d \equiv K_g c a x
+\end{equation}
+\begin{equation} \label{eq:u}
+u = -k_p y_p -k_i y_i - k_d y_d
+\end{equation}
+State space:
+\begin{equation}
+u = -K Y
+\end{equation}
+\begin{equation}
+K \equiv
+\begin{bmatrix}
+	0 & k_p & k_i & k_d
+\end{bmatrix}
+\end{equation}
+\begin{equation} \label{eq:complete_state}
+\begin{bmatrix}
+    \dot{x} \\
+    \dot{z} \\
+\end{bmatrix} =
+\begin{bmatrix}
+	a & 0 \\
+	c & 0 \\
+\end{bmatrix}
+\begin{bmatrix}
+	x \\
+	z \\
+\end{bmatrix} + 
+\begin{bmatrix}
+	b & 0 \\
+	0 & -1 \\
+\end{bmatrix}
+\begin{bmatrix}
+	u \\
+	s \\
+\end{bmatrix}
+\end{equation}
+
+\begin{equation} \label{eq:complete_output}
+\begin{bmatrix}
+	y \\
+	y_p \\
+	y_i \\
+	y_d \\
+\end{bmatrix} =
+\begin{bmatrix}
+	c & 0 \\
+	c & 0 \\
+	0 & 1 \\
+	K_g c a & 0 \\
+\end{bmatrix}
+\begin{bmatrix}
+	x \\
+	z \\
+\end{bmatrix} + 
+\begin{bmatrix}
+	0 & 0 \\
+	0 & -1 \\
+	0 & 0 \\
+	0 & 0 \\
+\end{bmatrix}
+\begin{bmatrix}
+	u \\
+	s \\
+\end{bmatrix}
+\end{equation}
+
+Closed loop, after plugging in our control law for $u$:
+\begin{equation} \label{eq:final_state}
+\begin{bmatrix}
+    \dot{x} \\
+    \dot{z} \\
+\end{bmatrix} =
+\begin{bmatrix}
+	a - b (k_p c + k_d K_g c a) & -b k_i \\
+	c & 0 \\
+\end{bmatrix}
+\begin{bmatrix}
+	x \\
+	z \\
+\end{bmatrix} + 
+\begin{bmatrix}
+	b k_p \\
+	-1 \\
+\end{bmatrix} s
+\end{equation}
+
+\begin{equation} \label{eq:final_output}
+y = \begin{bmatrix}
+	c & 0 \\
+\end{bmatrix}
+\begin{bmatrix}
+	x \\
+	z \\
+\end{bmatrix}
+\end{equation}
+
+\end{document}

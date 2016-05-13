@@ -1,0 +1,123 @@
+* {
+    padding: 0;
+    margin: 0;
+} 
+
+body {
+    background: #a0a0a0;
+    font: .74em "Trebuchet MS" Verdana, Arial, sans-serif;
+    line-height: 1.5em; 
+}
+a {
+    color: #3B6EBF;
+    text-decoration: none;
+}
+
+p {
+    padding: 12px;
+    font-size: 12pt;
+}
+
+ol,ul, li {
+    padding: 6px 24px 6px 24px;
+    font-size: 12pt;
+}
+
+pre, h5 {
+    margin-left: 2cm;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+.bigcode {
+   font-family: Monospace;
+   font-size: 14pt;
+}
+
+
+#wrapper {
+margin: 20px auto;
+width: 900px;
+background-color: #f0f0f0;
+}
+
+#top { 
+background: #f0f0f0 url('top-bar.jpg');
+height: 30px;
+}
+
+#content {
+padding: 0 40px 0 40px;
+}
+
+#bottom {
+background: #f0f0f0 url('bottom-bar.jpg');
+height: 30px;
+}
+
+.header {
+height: 120px;
+background: #6088e8;
+}
+
+.header h1 { padding-left: 17px; padding-top: 22px; color: #f0f0f0; font-size: 20pt; }
+.header a { color: #f0f0f0; text-decoration: none;}
+.header h2 { padding-left: 17px; padding-top: 0px; font-size: 16pt; color: #f0f0f0; }
+
+.navbar { 
+    background: #F9F9F9; 
+    border-bottom: 1px solid #E1E1E1; 
+    padding: 5px;
+}
+	
+.maintext {
+    float: left;
+    width: 96%;
+    margin: 0 10px;
+    padding: 1% 1%;
+    text-align: justify;
+}
+
+.rightside {
+	float: right;
+	width: 15%;
+	margin: 0 10px;
+	padding: 1% 1%;
+}
+
+.rightside ul {
+	padding: 20px 0 15px 20px;
+	margin:0;
+}
+
+.rightside li {
+	margin-bottom:5px;
+	list-style-type: square;
+	color: #3B6EBF;
+}
+
+.maintext h2 { color: #3B6EBF; font-size: 16pt; margin-bottom: 10px; margin-top: 10px;}
+.maintext h3 { color: #3B6EBF; font-size: 14pt; margin-bottom: 10px; margin-top: 10px;}
+/*.maintext p, li, table { padding-bottom: 10px; margin-left: 2em; } */
+.maintext p, li, table { padding-bottom: 10px; }
+.maintext tr { margin-bottom: 16pt; }
+
+.rightside h2 { color: #3B6EBF; font-size: 14px; margin-top: 15px;}
+
+
+#clear {
+	display: block;
+	clear: both;
+	width: 100%;
+	height:1px;
+	overflow:hidden;
+}
+
+#footer {
+	text-align: center;
+	color: #666;
+}
+
+

@@ -1,0 +1,1289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN" "http://www.w3.org/TR/MathML2/dtd/xhtml-math11-f.dtd">
+<!-- saved from url=(0054)http://home.earthlink.net/~ltrammell/tech/pidvslin.htm -->
+<html xmlns="http://www.w3.org/1999/xhtml" mathml="http://www.w3.org/1998/Math/MathML"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta http-equiv="Content-Language" content="English">
+
+<meta name="generator" content="gedit">
+<meta keywords="tutorial, technology, control, PID, state-space models">
+<link rel="stylesheet" type="text/css" href="simple-page.css" media="screen">
+<title>PID vs. Linear?</title>
+</head>
+
+<body>
+<div id="wrapper">
+
+<!-- Top border image, 30 px reserved -->
+<div id="top">
+<p> &nbsp; </p>
+</div>
+
+
+<!-- Page content, title, main body, floating menu -->
+<div id="content">
+
+
+<!-- Full span header lines in title box -->
+<div class="header">
+<h1><a href="http://home.earthlink.net/~ltrammell/tech/pidvslin.htm#">PID vs. State-Space Linear Control -- Really?</a></h1>
+</div>
+
+<!-- Navigation row following title box -->
+<div class="navbar">
+<a href="http://home.earthlink.net/~ltrammell/index.html">Home</a>
+</div>
+
+
+<!-- Main page content on the left -->
+<div class="maintext">
+
+<!-- Side content on the right, within main content section -->
+<div class="rightside">
+<h2>Other sites:</h2>
+<ul>
+<li><a href="http://www.ridgerat-hikes.info/">RidgeRat Hikes</a></li>
+</ul>
+</div>
+
+
+<!-- Main content, wrap-around -->
+
+
+<h2> Which one is better? </h2>
+
+<p>I have seen the arguments. </p>
+
+<ul>
+  <li> State-space models produce superior results. </li>
+  <li> PID is ready off the shelf and works well enough, so why mess around? </li>
+</ul>
+
+<p> If you don't have a model for how your system works, you might not have
+much choice.  In such circumstances, you won't be able to do much more than
+apply heuristic controls.  The heuristics for <b>PID control</b>
+are as follows: </p>
+
+<ol>
+  <li><b>The proportional correction rule.</b> The more the system output
+  deviates from the level you want, the harder you should try to correct
+  it.
+  </li>
+  <li><b>The integral correction rule.</b> If the output level remains
+  persistently displaced, adjust the control output level cumulatively
+  to correct it.
+  </li>
+  <li><b>The derivative correction rule.</b> If the output is changing too
+  fast, reduce the control output to avoid speeding past the desired
+  output level.
+  </li>
+</ol>
+
+<p> The three rules propose different output strategies. The
+conflict is resolved by taking a weighted sum of the recommendations
+from the three rules.</p>
+
+<p> While steeped in plausibility, there are all sorts
+of subtle ways that this control scheme can perform poorly: taking too
+long to reach the desired setpoint level, applying excessive corrections
+that rattle the system, bouncing around in low level oscillations, and
+so forth. Even when the control is successful, selecting gain settings
+to give best results remains more alchemy than science. </p>
+
+<p> Simulation using a mathematical model is a valuable technique for
+understanding what is happening in a system. When you have a model that
+reflects the actual behavior of your system, and a control strategy that
+works well for your model, that control strategy has better chance of
+working on the real system than one based on plausibility alone. One type
+of model that works very well for a lot of systems is a <em>state-space
+model</em>, in which a set of <em>state variables</em> (such as
+temperatures, pressures, fluid levels, speed, and so forth) characterize
+what the system is doing; a set of differential equations then describes
+how input variables interact to change the system state.  An important
+special case of a state-space model is a <em>linear state-space model
+</em>, in which the input/output and differential equation systems
+are linear. This is not strictly realistic, but it works well enough
+and often enough that it is the only case considered here. (Of course,
+the ideas can be extended to a nonlinear case if you insist!)  </p>
+
+<p> Suppose you have developed a model, and determined a typical linear
+feedback rule that shows good control results. Now you want to
+implement your strategy on the real system. <b>Good luck with that</b>.
+When you go shopping for equipment to apply your ideas, you will find that
+PID controllers are available, but precious little else. In the end,
+all of your efforts to model and understand the system get thrown out
+the window. </p>
+
+<p> <em>Maybe it doesn't have to be that way.</em> General linear
+feedback schemes based on a state space model can use multiple observed
+variables to produce multiple control output signals. PID schemes
+are linear and use one observed system variable to
+produce one control output. It would seem like the PID case
+should be easier. What prevents it from being incorporated into your
+state-space model?  </p>
+
+<p>Check out the following. I have never seen an analysis of this sort in
+print elsewhere. It may be <em>old business.</em> If this is the case
+I apologize in advance.</p>
+
+<p> &nbsp; </p>
+
+<h2>Augmenting the System Model</h2>
+
+<p>Assume that you have a linear state space system model of your system,
+with state vector <code>x</code>, a single-variable control <code>v</code>
+applied through system input <code>u</code>, continuous state matrix
+<code>a</code>, input coupling matrix <code>b</code>, and observation
+matrix <code>c</code> to observe the relevant system output
+<code>y</code>.  Though, in general, the <code>y</code> vector can
+provide several observed variables, for now, we consider only the one
+output of relevance to the PID control. </p>
+
+
+
+<h5>System Model </h5>
+
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block" align="left">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>x</mi>
+      <mo>&#8242;</mo>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>a</mi>
+      <mi>x</mi>
+      <mspace width="1em"></mspace>
+      <mo>+</mo>
+      <mspace width="1em"></mspace>
+      <mi>b</mi>
+      <mi>u</mi>
+    </mrow>
+  </mstyle>
+</math>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block" align="left">
+  <mstyle mathsize="1.5em">
+    <mrow>
+   <mrow>
+      <mi>y</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>c</mi>
+      <mi>x</mi>
+      <mspace width="1em"></mspace>
+    </mrow>
+  </mrow></mstyle>
+</math>
+</p>
+
+
+<p>We will consider the input <code>u</code> to consist of two parts: a
+setpoint driving term <code>s</code>, and a feedback term <code>v</code>,
+with separate input coupling matrices <code>b<sub>f</sub></code> for the
+feedback, and <code>b<sub>s</sub></code> for the setpoint. (For purposes
+of simulation, a third input variable with coupling matrix can be included
+to represent a class of disturbances.) The separation will make it a
+little easier to think about the setpoint and feedback signals individually.
+ </p>
+
+<p> Looking ahead, we know that PID control rule will need to compute the
+differences between the observed output variable and the setpoint. The
+setpoint will need to be an additional observable quantity. For now, the
+tracking error <code>e = y&#8722;s</code>, is treated as a separate
+observed variable, and the notation will be consolidated later. </p>
+
+
+
+<h5>Reorganized system model</h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>x</mi>
+      <mo>&#8242;</mo>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>a</mi>
+      <mi>x</mi>
+      <mspace width="1em"></mspace>
+      <mo>+</mo>
+      <mspace width="1em"></mspace>
+      <msub>
+        <mi>b</mi>
+        <mi>f</mi>
+      </msub>
+      <mi>v</mi>
+      <mspace width="1em"></mspace>
+      <mo>+</mo>
+      <mspace width="1em"></mspace>
+      <msub>
+        <mi>b</mi>
+        <mi>s</mi>
+      </msub>
+      <mi>s</mi>
+    </mrow>
+  </mstyle>
+</math>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>y</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>c</mi>
+      <mi>x</mi>
+      <mspace width="1em"></mspace>
+      <mo>+</mo>
+      <mspace width="1em"></mspace>
+      <mn>0</mn>
+      <mi>s</mi>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>e</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>c</mi>
+      <mi>x</mi>
+      <mspace width="1em"></mspace>
+      <mo>+</mo>
+      <mspace width="1em"></mspace>
+      <mo>&#8722;</mo>
+      <mn>1</mn>
+      <mi>s</mi>
+    </mrow>
+  </mstyle>
+</math>
+<p></p>
+
+<p>A PID controller (in <em>parallel form</em>) applies three control
+rules to perform the its computations. Each of these rules observes
+variables dependent on setpoint and system state. </p>
+
+<p>&nbsp; </p>
+
+
+
+<h3>proportional control</h3>
+
+<p> Proportional feedback responds in proportion to the difference
+between the desired output (setpoint) and the observed system output.
+The current value of the tracking error <code>e</code> is needed. The
+proportional feedback rule is: </p>
+
+<h5> proportional feedback rule</h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>v</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>-</mo>
+      <msub>
+        <mi>k</mi>
+        <mi>p</mi>
+      </msub>
+      <mfenced>
+        <mrow>
+          <mi>y</mi>
+          <mo>-</mo>
+          <mi>s</mi>
+        </mrow>
+      </mfenced>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>-</mo>
+      <msub>
+        <mi>k</mi>
+        <mi>p</mi>
+      </msub>
+      <mspace width="0.5em"></mspace>
+      <mi>e</mi>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+<p> The scaling factor <code>k<sub>p</sub></code> is the <em>proportional
+gain</em> of the PID controller.</p>
+
+<p> &nbsp; </p>
+
+
+
+<h3>integral control</h3>
+
+<p> To detect a persistent tracking error, the PID controller integrates
+the tracking error <code>e</code> over time. Augment
+the system equations with an additional artificial state variable
+<code>z</code> to represent the state of the accumulator. Include this
+as an extra row in the state equations. The integration that solves for
+other state variables then updates the error integral term at the same
+time. Since the tracking error integral value is needed for
+feedback calculations, the observation equations must be augmented to
+present the value of variable <code>z</code>.</p>
+
+<h5>integral feedback rule</h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>z</mi>
+      <mo>&#8242;</mo>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>e</mi>
+    </mrow>
+  </mstyle>
+</math>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>v</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>-</mo>
+      <msub>
+        <mi>k</mi>
+        <mi>i</mi>
+      </msub>
+      <mi>z</mi>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+<p> The scaling factor <code>k<sub>i</sub></code> is the <em>integral gain</em> of
+the PID controller.</p>
+
+<p> &nbsp; </p>
+
+
+<h3>derivative control</h3>
+
+<p>The <em>derivative</em> part of a PID controller is somewhat fictional.
+A real PID controller observes changes in its signals and from this
+<em>estimates</em> what the derivative must be. If you know exactly
+how it produces this estimate, you could include that same calculation
+in your model. Most likely, you don't know, so you must provide something
+based on your state-space model.</p>
+
+<p> Derivatives for any output value can be obtained by substituting
+the derivative relationships in the state update equations into the
+output observation equation. The variable you should use is the
+derivative of the system output variable. This is not the same
+exact thing as the derivative of the tracking error, as defined
+in classical PID control — but actually, this is better,
+because the derivative of
+the tracking error and the derivative of the output variable will be
+the same <em>except</em> at instants where the setpoint level
+changes. And at those points of discontinuity, the tracking error
+derivative is undefined. (PID controllers are famous for giving the
+system a severe jolt through the derivative feedback term when the
+setpoint changes. Unnecessary and avoidable!) </p>
+
+<p> The derivative estimate produced by actual PID equipment
+remains sensitive to high frequency noise. High frequency means
+rapid change, which means large derivative. On the presumption that
+extreme high frequencies are not a natural part of the system response,
+lowpass filtering is often applied to limit the bandwidth of the
+derivative estimate. While this is typically beneficial, it can also
+introduce new hazards. If you know what the filtering is, you can
+include that calculation exactly in your model. </p>
+
+<p> Keeping in mind these considerations, the derivative of the output
+variable as predicted by the state equations is: </p>
+
+<h5> derivative control rule </h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block" align="left">
+  <mstyle mathsize="1.5em">
+    <mrow>
+   <mrow>
+      <mi>y</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>c</mi>
+      <mi>x</mi>
+      <mspace width="1em"></mspace>
+    </mrow>
+  </mrow></mstyle>
+</math>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>y</mi>
+      <mo>&#8242;</mo>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>c</mi>
+      <mi>x</mi>
+      <mo>&#8242;</mo>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>c</mi>
+      <mi>a</mi>
+      <mi>x</mi>
+      <mspace width="1em"></mspace>
+      <mo>+</mo>
+      <mspace width="1em"></mspace>
+      <mi>c</mi>
+      <msub>
+        <mi>b</mi>
+        <mi>f</mi>
+      </msub>
+      <mi>v</mi>
+      <mspace width="1em"></mspace>
+      <mo>+</mo>
+      <mspace width="1em"></mspace>
+      <mi>c</mi>
+      <msub>
+        <mi>b</mi>
+        <mi>s</mi>
+      </msub>
+      <mi>s</mi>
+    </mrow>
+  </mstyle>
+</math>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>v</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>-</mo>
+      <msub>
+        <mi>k</mi>
+        <mi>d</mi>
+      </msub>
+      <mi>y</mi>
+      <mo>&#8242;</mo>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>-</mo>
+      <msub>
+        <mi>k</mi>
+        <mi>d</mi>
+      </msub>
+      <mi>c</mi>
+      <mfenced>
+        <mrow>
+          <mi>a</mi>
+          <mi>x</mi>
+          <mo>+</mo>
+          <msub>
+            <mi>b</mi>
+            <mi>f</mi>
+          </msub>
+          <mi>v</mi>
+          <mo>+</mo>
+          <msub>
+            <mi>b</mi>
+            <mi>s</mi>
+          </msub>
+          <mi>s</mi>
+        </mrow>
+      </mfenced>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+<p> where <code>kd</code> is the <em>derivative gain</em> of
+the PID controller. This expression presents a problem: the feedback
+variable <code>v</code>  appears on both sides of this expression.
+ An algebraic reduction can combine the two <code>v</code>
+terms. Define the algebraic factor <code>Kg</code>, and use it
+to simplify the derivative feedback expression above. </p>
+
+
+<h5> derivative feedback after algebraic reduction</h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <msub>
+        <mi>K</mi>
+        <mi>g</mi>
+      </msub>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mn>1</mn>
+      <mo>/</mo>
+      <mrow>
+        <mfenced>
+          <mrow>
+            <mn>1</mn>
+            <mo>+</mo>
+            <msub>
+              <mi>k</mi>
+              <mi>d</mi>
+            </msub>
+            <mi>c</mi>
+            <msub>
+              <mi>b</mi>
+              <mi>f</mi>
+            </msub>
+          </mrow>
+        </mfenced>
+      </mrow>
+    </mrow>
+  </mstyle>
+</math>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>v</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>-</mo>
+      <msub>
+        <mi>k</mi>
+        <mi>d</mi>
+      </msub>
+      <msub>
+        <mi>K</mi>
+        <mi>g</mi>
+      </msub>
+      <mi>c</mi>
+      <mspace width="0.5em"></mspace>
+      <mfenced>
+        <mrow>
+          <mi>a</mi>
+          <mi>x</mi>
+          <mo>+</mo>
+          <msub>
+            <mi>b</mi>
+            <mi>s</mi>
+          </msub>
+          <mi>s</mi>
+        </mrow>
+      </mfenced>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+
+<p> For many and possibly most systems, the feedback <code>v</code>
+does not couple directly and instantaneously into the output variable
+<code> y </code> — and for this common case the <code>c b<sub>f</sub>
+</code> product evaluates to zero.  The <code>Kg</code> term then reduces
+to a value of 1 and can be ignored.
+ </p>
+
+<p> &nbsp; </p>
+
+
+
+<h2>Consolidating the Augmented State Model</h2>
+
+<p> To integrate the feedback calculations with the rest of the model,
+start by collecting the additional observed terms that were
+mentioned in passing. These are appended to the original <code>y</code>
+vector. </p>
+
+
+
+<h5> original output variable </h5>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>y</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>c</mi>
+      <mi>x</mi>
+    </mrow>
+  </mstyle>
+</math>
+
+<p> &nbsp; </p>
+
+<h5> supplemental tracking error variable </h5>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <msub>
+        <mi>y</mi>
+        <mi>p</mi>
+      </msub>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>z</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>c</mi>
+      <mi>x</mi>
+      <mspace width="1em"></mspace>
+      <mo>-</mo>
+      <mspace width="1em"></mspace>
+      <mi>s</mi>
+    </mrow>
+  </mstyle>
+</math>
+<p> &nbsp; </p>
+
+<h5> supplemental integral-error variable </h5>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <msub>
+        <mi>y</mi>
+        <mi>i</mi>
+      </msub>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>z</mi>
+    </mrow>
+  </mstyle>
+</math>
+<p> &nbsp; </p>
+
+<h5> supplemental output derivative calculations </h5>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <msub>
+        <mi>y</mi>
+        <mi>d</mi>
+      </msub>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <msub>
+        <mi>K</mi>
+        <mi>g</mi>
+      </msub>
+      <mi>c</mi>
+      <mfenced>
+        <mrow>
+          <mi>a</mi>
+          <mi>x</mi>
+          <mspace width="1em"></mspace>
+          <mo>+</mo>
+          <mspace width="1em"></mspace>
+          <msub>
+            <mi>b</mi>
+            <mi>s</mi>
+          </msub>
+          <mi>s</mi>
+        </mrow>
+      </mfenced>
+    </mrow>
+  </mstyle>
+</math>
+<p> &nbsp; </p>
+
+<h5> augmented observation vector </h5>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>Y</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>[</mo>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>y</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+              <mi>y</mi>
+              <mi>p</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+              <mi>y</mi>
+              <mi>i</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+              <mi>y</mi>
+              <mi>d</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+      <mo>]</mo>
+      <mspace width="1em"></mspace>
+    </mrow>
+  </mstyle>
+</math>
+
+<p> The augmented state includes the supplemental integral-error variable.
+The PID calculations use this additional state information, but for all
+other purposes, the artificial state variable is ignored. The input coupling
+matrix gets an additional row for driving the new tracking error integral,
+but of course the new row <code>b<sub>e</sub></code> in this matrix will
+consist of a single term equal to 1, applied to the tracking error term,
+with all other coefficients equal to zero.
+</p>
+
+<h5>augmented state with tracking error integration</h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block" id="name">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>X</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>[</mo>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>x</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>z</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+      <mo>]</mo>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+<h5>input vector with feedback and setpoint terms separated</h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block" id="name">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>U</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>[</mo>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>v</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>s</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+      <mo>]</mo>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+<h5>augmented input coupling matrix with error integration row </h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>B</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>[</mo>
+      <mtable>
+        <mtr>
+          <mtd>
+            <msub>
+              <mi>b</mi>
+              <mi>f</mi>
+            </msub>
+            <mspace width="2em"></mspace>
+            <msub>
+              <mi>b</mi>
+              <mi>s</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+              <mi>b</mi>
+              <mi>e</mi>
+            </msub>
+            <mspace width="2em"></mspace>
+              <mn>0</mn>
+          </mtd>
+        </mtr>
+      </mtable>
+      <mo>]</mo>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+
+<h5>augmented state matrix with tracking-error integration</h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>A</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>[</mo>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>a</mi>
+            <mspace width="3em"></mspace>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mn>0</mn>
+            <mspace width="3em"></mspace>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+      </mtable>
+      <mo>]</mo>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+
+<h5>augmented state equations </h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>X</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>A</mi>
+      <mi>X</mi>
+      <mspace width="1em"></mspace>
+      <mo>+</mo>
+      <mspace width="1em"></mspace>
+      <mi>B</mi>
+      <mi>U</mi>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+
+<p> Now the coefficients appearing in the augmented observation equation
+can be reorganized into a matrix form that provides the extended list
+of output terms, with one column applied to the original state, and the
+second column using the new tracking integral, making it visible for the
+PID calculations. A new input coupling matrix <code>D</code> is added
+for the purpose of making the setpoint value available to the tracking
+error calculation and the derivative estimate. </p>
+
+<h5>augmented observation matrix </h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>C</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>[</mo>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>c</mi>
+            <mspace width="3em"></mspace>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>c</mi>
+            <mspace width="3em"></mspace>
+              <mn>0</mn>
+          </mtd>
+        </mtr>
+         <mtr>
+          <mtd>
+            <mi>0</mi>
+            <mspace width="3em"></mspace>
+            <mn>1</mn>
+          </mtd>
+        </mtr>
+
+       <mtr>
+          <mtd>
+            <msub>
+              <mi>K</mi>
+              <mi>g</mi>
+            </msub>
+            <mi>c</mi>
+            <mi>a</mi>
+            <mspace width="1em"></mspace>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+      </mtable>
+      <mo>]</mo>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+<h5>augmented observation input coupling matrix </h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>D</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>[</mo>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>0</mi>
+            <mspace width="3em"></mspace>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>0</mi>
+            <mspace width="2.5em"></mspace>
+              <mi>-</mi>
+              <mn>1</mn>
+          </mtd>
+        </mtr>
+         <mtr>
+          <mtd>
+            <mi>0</mi>
+            <mspace width="3em"></mspace>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+       <mtr>
+          <mtd>
+            <mn>0</mn>
+            <mspace width="1em"></mspace>
+            <msub>
+              <mi>K</mi>
+              <mi>g</mi>
+            </msub>
+            <mi>c</mi>
+            <msub>
+            <mi>b</mi>
+            <mi>s</mi>
+            </msub>
+          </mtd>
+        </mtr>
+
+      </mtable>
+      <mo>]</mo>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+<h5>augmented observation equations </h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>Y</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>C</mi>
+      <mi>X</mi>
+      <mspace width="1em"></mspace>
+      <mo>+</mo>
+      <mspace width="1em"></mspace>
+      <mi>D</mi>
+      <mi>U</mi>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+
+<p> &nbsp; </p>
+
+
+
+<h2>Calculating the PID Feedback</h2>
+
+<p> Thanks to the way that the observation vector has been defined,
+the PID feedback can be represented as a linear feedback in the typical
+manner for linear state-space models. The original output variable,
+<code>y</code>, is not used directly. The first row in the feedback
+vector contains the collection of PID gains. The second row is a trivial
+one that merely reports the value of the current tracking error for
+purposes of updating the error integral.
+</p>
+
+
+<h5>PID feedback gain matrix </h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>K</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mo>[</mo>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mm>0</mm>
+            <mspace width="1.5em"></mspace>
+            <msub>
+              <mi>k</mi>
+              <mi>p</mi>
+            </msub>
+            <mspace width="1.5em"></mspace>
+            <msub>
+              <mi>k</mi>
+              <mi>i</mi>
+            </msub>
+            <mspace width="1.5em"></mspace>
+            <msub>
+              <mi>k</mi>
+              <mi>d</mi>
+            </msub>
+            <mspace width="0.5em"></mspace>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mn>0</mn>
+            <mspace width="2em"></mspace>
+            <mn>1</mn>
+             <mspace width="2em"></mspace>
+            <mn>0</mn>
+            <mspace width="2em"></mspace>
+            <mn>0</mn>
+            <mspace width="0.5em"></mspace>
+          </mtd>
+        </mtr>
+      </mtable>
+      <mo>]</mo>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+
+<h5>feedback control law </h5>
+<p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mstyle mathsize="1.5em">
+    <mrow>
+      <mi>v</mi>
+      <mspace width="1em"></mspace>
+      <mo>=</mo>
+      <mspace width="1em"></mspace>
+      <mi>-</mi>
+      <mi>K</mi>
+      <mi>Y</mi>
+    </mrow>
+  </mstyle>
+</math>
+</p>
+
+<p> &nbsp; </p>
+
+<blockquote style="text-size:bigger; margin-left:2em"><i>
+We have just obtained a state-space model with linear feedback for a
+system under PID control. This is a matter of notation, not control
+theory. Because it is clear that this represents a PID control, and that it
+is a state-space representation, there is no theoretical need to
+<strong>choose between</strong> PID or linear state-space control theory
+for purposes of system analysis. That choice might be need to be made
+because of other practical restrictions, such as the opportunity or
+difficulty for developing the necessary system model.
+</i></blockquote>
+
+<p>&nbsp;</p>
+
+
+
+<h2>An Example</h2>
+
+<p> A hypothetical system is  constructed deliberately to be extremely
+difficult for a PID controller, so that the simulation always has something
+to show regardless of the gain settings. The problem is to cancel out observed
+displacements in one of the variables, by controlling an input that drives
+another variable. The two variables change <em>out of phase</em>, consequently
+the PID controller might need "negative feedback gains" of the sort that
+would drive ordinary systems straight to instability.</p>
+
+<p> The desired disturbance level is 0, so the setpoint variable <code>s</code>
+is 0 and the <code>bs</code> terms are otherwise unused. For this simulation,
+the spare <code>bs</code> vector is used artificially to insert a simulated disturbance. </p>
+
+<p>Here is the original system model, with the third state variable observed
+for feedback, while inputs drive the fourth state variable. </p>
+
+<pre>sysF = ...
+[ 0.0     0.0     1.0    0.0; ...
+  0.0     0.0     0.0    1.0; ...
+  -0.052  0.047  -0.01   0.0; ...
+  0.047  -0.052   0.0   -0.04 ];
+
+sysB = [ 0.0;  0.0;  0.0;  0.01 ];
+
+obsC = [ 0.0;  0.0;  1.0;  0.0 ];
+</pre>
+
+<p>There is a PID controller, separately modeled, with gains</p>
+
+<pre>kp = 2.0; ki = -.50; kd = -15.0;
+</pre>
+
+<p>This is simulated with time-step <code>delT = 0.5</code> through
+250 steps, using a trapezoidal rule integration for the system
+state model and rectangular rule integration for the PID integral
+term. The following plot shows the state 3 that we would like to
+regulate to 0. The green trace is without feedback control, and the
+blue trace is using PID control. </p>
+
+<div style="text-align: center">
+<img src="test1.png" width="420" height="310" alt="Original model">
+</div>
+
+<p> So now the problem is reformulated to include the PID controller
+within the state space model. Because the feedback drives one variable,
+but output sees a different variable, there is no direct coupling into
+the derivative term. The <code>Kg</code> term reduces to 1.0 and can
+be omitted. Here are the augmented equations:</p>
+
+<pre>sVar = 1.0;
+setpt = 0.0;
+
+sysF = [ ...
+  0.0     0.0     1.0    0.0   0.0; ...
+  0.0     0.0     0.0    1.0   0.0; ...
+  -0.052  0.047  -0.01   0.0   0.0; ...
+  0.047  -0.052   0.0   -0.04  0.0; ...
+  0.0     0.0     1.0    0.0   0.0 ];
+
+sysBset = [ 0.0;  0.0;  0.0;  0.01;  1.0];
+
+sysBfb  = [ 0.0;  0.0;  0.0;  0.01;  0.0];
+
+obsC = [ ...
+  0.0     0.0     1.0    0.0   0.0;  ...
+  0.0     0.0     0.0    0.0   1.0;  ...
+  -0.052  0.047  -0.01   0.0   0.0;  ...
+  0.0     0.0     1.0    0.0   0.0 ];
+
+obsD = [ -1.0;  0.0;  0.0;  0.0 ];
+
+pidK = [ 2.0  -0.50   -15.0   0.0 ];
+</pre>
+
+<p>Here is the simulation for the augmented system, recording the
+state trajectory for later inspection.
+</p>
+
+<pre>sVar = 0;
+for i=2:steps
+  % Current state and observed variables
+  xstate = hist(:,i-1);
+  yobs = obsC * xstate + obsD * sVar;
+
+  % Feedback law applied to current output
+  fb(i) = -pidK * yobs;
+
+  % Predictor step (Rectangular rule)
+  deriv = sysF * xstate + sysBset * sVar + sysBfb * fb(i);
+  xproj = xstate + deriv*delT;
+  yobs = obsC * xproj + obsD * sVar;
+
+  % Corrector step (Trapezoid rule)
+  dproj = sysF * xproj + sysBset * sVar + sysBfb * fb(i);
+  xstate = xstate + 0.5*(deriv+dproj)*delT;
+  hist(:,i) = xstate;
+end
+</pre>
+
+<p> Here is the result of this simulation. </p>
+
+<div style="text-align: center">
+<img src="test2.png" width="420" height="310" alt="Augmented model">
+</div>
+
+<p>At first glance, it is a match for the previous simulation. It
+has captured the essential behaviors of the PID-controlled system.
+However, the results of the two simulations do not really match exactly,
+and we should not expect them to, because a state-space model calculates
+derivatives, while an ordinary PID controller estimates them. </p>
+
+<hr align="center" size="3" width="100%">
+
+<p> &nbsp;</p>
+
+</div>  <!-- End main text -->
+
+<p><em>Okay, that's the idea. What I don't know is... how well
+does this work in practice? </em></p>
+
+</div>
+</div>
+
+<div id="footer">
+<p> © Larry Trammell, 2002-2015 <br>
+Found at the <a href="http://home.earthlink.net/~ltrammell/tech/techindx.htm">RidgeRat Arcane Technology Page</a> <br>
+Version 3 — last update 10/19/2015 </p>
+</div>
+
+
+
+
+</body></html>
