@@ -14,7 +14,7 @@ sys_ss = ss(A,B,C,D,...
     'statename',states,...
     'inputname',inputs,...
     'outputname',outputs);
-figure;
+figure(1);
 step(sys_ss);
 title('Open-Loop Step Response');
 
@@ -38,7 +38,7 @@ sys_cl = ss(Ac,Bc,Cc,Dc,...
     'statename',states,...
     'inputname',inputs,...
     'outputname',outputs);
-figure;
+figure(2);
 step(sys_cl);
 title('Closed-Loop Step Response with LQR controller');
 
@@ -58,7 +58,7 @@ sys_tf = tf(sys_ss_siso);
 
 pid_controller = pid(Kp,Ki,Kd);
 sys_cl_pid = feedback(pid_controller*sys_tf,1);
-figure;
+figure(3);
 step(sys_cl_pid);
 title('Closed-Loop Step Response with PID controller');
 
@@ -106,7 +106,7 @@ if false
     end
 
     t = 0:T:(size(output,1)-1)/f;
-    figure;
+    figure(7);
     plot(t,output(:,1));
     ylabel('x');
     title('PID in SS - without lsim');
@@ -123,7 +123,7 @@ sys_ss_pid = ss(Apid,Bpid,Cpid,Dpid,...
     'statename',states_pid,...
     'inputname',inputs_pid,...
     'outputname',outputs_siso);
-figure;
+figure(4);
 step(sys_ss_pid);
 title('Closed-Loop Step Response with PID controller in SS form');
 
@@ -138,7 +138,7 @@ Kd = 0;
 
 pid_controller = pid(Kp,Ki,Kd);
 sys_cl_pid = feedback(pid_controller*sys_tf,1);
-figure;
+figure(5);
 step(sys_cl_pid);
 title('Closed-Loop Step Response with PI controller');
 
@@ -152,6 +152,6 @@ sys_ss_pi = ss(Api,Bpi,Cpi,Dpi,...
     'statename',states_pid,...
     'inputname',inputs_pid,...
     'outputname',outputs_siso);
-figure;
+figure(6);
 step(sys_ss_pi);
 title('Closed-Loop Step Response with PI controller in SS form');
